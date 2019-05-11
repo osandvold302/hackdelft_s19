@@ -49,7 +49,7 @@ def fetch_data(FILENAME="current.json", printing=False):
                 ESX["ask"]["price"] = price.ask[0]
                 ESX["ask"]["volume"] = price.ask[1]
 
-            timestamp = price.timestamp
+            bigDict["timestamp"] = str(price.timestamp)
             if printing:
                 os.system('cls' if os.name == 'nt' else 'clear')
                 print("""\n\n\n\n
@@ -58,7 +58,7 @@ def fetch_data(FILENAME="current.json", printing=False):
                     BID {}\t\t{}\t\t\t|       BID {}\t\t{}
                     ASK {}\t\t{}\t\t\t|       ASK {}\t\t{}
                 \n\n
-                    TIMESTAMP {}""".format(SP["bid"]["price"], SP["bid"]["volume"], ESX["bid"]["price"], ESX["bid"]["volume"],SP["ask"]["price"], SP["ask"]["volume"], ESX["ask"]["price"], ESX["ask"]["volume"], timestamp))
+                    TIMESTAMP {}""".format(SP["bid"]["price"], SP["bid"]["volume"], ESX["bid"]["price"], ESX["bid"]["volume"],SP["ask"]["price"], SP["ask"]["volume"], ESX["ask"]["price"], ESX["ask"]["volume"], bigDict["timestamp"]))
             
             dump = json.dumps(bigDict)
 
