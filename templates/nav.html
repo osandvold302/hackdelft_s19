@@ -1,0 +1,19 @@
+<nav id="navi" class="navbar navbar-default navbar-static-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a style="margin:0px;padding:0;" class="navbar-brand" href="/"><img style="margin:0px;padding:0;" src="{{ url_for('static', filename='img/logo.png') }}"/></a>
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li{% if page == 'live' %} class="active"{% endif %}><a href="/live">Live</a></li>
+                <li{% if page == 'history' %} class="active"{% endif %}><a href="history">History</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
