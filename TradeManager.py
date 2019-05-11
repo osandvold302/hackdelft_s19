@@ -11,6 +11,8 @@ UDP_PORT = 8001
 
 sock = socket.socket(socket.AF_INET, # Internet
                       socket.SOCK_DGRAM) # UDP
+class TradeError(Exception):
+    pass
 
 class TradeManager:
     def __init__(self, username):
@@ -77,11 +79,28 @@ class TradeManager:
         raw_request = str(packet[0])
 
         print(raw_request)
+        fields = str(raw_request).split("|")
 
-        #TODO: IMPLEMENT THE ACKNOWLEDGEMENT CUZ RIGHT NOW IT DOESNT ACKNOWLEDGE SHIT
+        # error catching in the trade
+        if "ERROR=" in raw_request:
+            message = fields[1].replace("ERROR=", '')
+            raise TradeError(message)
+        
+        elif "TRADED_VOLUME=0" in raw_request:
+            return "NOTRADE"
+        
+        price = float(fields[2].replace("PRICE=", ''))
+        volume = int(fields[3].replace("TRADED_VOLUME=", '').replace('\'', ''))
+
+        return price,volume
 
 if __name__ == "__main__":
     mngr = TradeManager("Group30_test")
     print(mngr.get_status())
-    # mngr.make_trade("SP-FUTURE", "SELL", 4200, 100)
+    # while True:
+    # status = "NOTRADE"
+    # while status == "NOTRADE":
+    #     status = mngr.make_trade("SP-FUTURE", "BUY", 3091., 1)
+    #     print(status)
+    
     
