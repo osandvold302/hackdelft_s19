@@ -45,20 +45,35 @@ def updateData():
 def showlst():
     return str(data_esx[-1])
 
-@app.route('/crt-update/<cid>')
-def chartUpdate(cid):
+@app.route('/update-sliders/<strdata>')
+def UpdateSilders(strdata):
+    data = {}
+    s = strdata.split(',')
+    for t in s:
+        t = t.split(':')
+        data[t[0]] = float(t[1])
+    st.saveSliders(data)
+    return 'ok'
+
+@app.route('/crt-update')
+def chartUpdate():
+    strg = ''
     labels,bid,ask = '','',''
-    if 'sp' in cid:
-        for d in data_sp[-(history+1):-1]:
-            labels += '"'+d['time'] + '";'
-            bid += str(d['bidprice']) + ';'
-            ask += str(d['askprice']) + ';'
-    elif 'esx' in cid:
-        for d in data_esx[-(history+1):-1]:
-            labels += d['time'] + ';'
-            bid += str(d['bidprice']) + ';'
-            ask += str(d['askprice']) + ';'
-    s_ret = labels[:-1]+'|'+bid[:-1]+'|'+ask[:-1]
+    for d in data_sp[-(history+1):-1]:
+        labels += '"'+d['time'] + '";'
+        bid += str(d['bidprice']) + ';'
+        ask += str(d['askprice']) + ';'
+    strg += labels[:-1]+'|'+bid[:-1]+'|'+ask[:-1] + '&&'
+    labels,bid,ask = '','',''
+    for d in data_esx[-(history+1):-1]:
+        labels += '"'+d['time'] + '";'
+        bid += str(d['bidprice']) + ';'
+        ask += str(d['askprice']) + ';'
+    s_ret = strg + labels[:-1]+'|'+bid[:-1]+'|'+ask[:-1]+'&&'
+    dx = st.getTableData()
+    s_ret += str(dx['position']['ESX_position'])+';'+str(dx['position']['SP_position'])+';'+str(dx['position']['PNL'])+';'+str(dx['position']['PNL_locked'])+';'+str(dx['position']['traded_volume'])+'&&'
+    s_ret += str(dx['parameters']['ESX']['mean'])+';'+str(dx['parameters']['ESX']['stdev'])+';'+str(dx['parameters']['ESX']['z-value'])+';'+str(dx['parameters']['ESX']['trade_volume'])+'&&'
+    s_ret += str(dx['parameters']['SP']['mean'])+';'+str(dx['parameters']['SP']['stdev'])+';'+str(dx['parameters']['SP']['z-value'])+';'+str(dx['parameters']['SP']['trade_volume'])
     #print(s_ret)
     return s_ret
 

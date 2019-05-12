@@ -1,3 +1,4 @@
+import json
 
 def saveData(data,name_db):
     s = ''
@@ -33,4 +34,16 @@ def createChart(data,len_history,chartname):
             chart['askprice'].append(d['askprice'])
 
         return chart
-    
+
+def saveSliders(sl_data):
+    with open('recordings/sliders_simple.json','w') as write_file:
+        json.dump(sl_data,write_file)
+    return ''
+
+def getTableData():
+    while True:
+        try:
+            with open("recordings/status_mockup.json", "r") as read_file:
+                return json.load(read_file)
+        except:
+            pass

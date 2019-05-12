@@ -4,21 +4,132 @@
 {% block description %}Stratus Admin Panel{% endblock %}
 
 {% block jscript %}
+<script>
+function updtsl() {
+    document.getElementById("tres-buy-td").innerHTML = document.getElementById("rng-tres-buy").value;
+    document.getElementById("tres-sell-td").innerHTML = document.getElementById("rng-tres-sell").value;
+    document.getElementById("vol-buy-td").innerHTML = document.getElementById("rng-vol-buy").value;
+    document.getElementById("vol-sell-td").innerHTML = document.getElementById("rng-vol-sell").value;
+    Http = new XMLHttpRequest();
+    var str_xyz = "threshold_sell:"+document.getElementById("rng-tres-sell").value+",threshold_buy:"+document.getElementById("rng-tres-buy").value+",vol_sell:"+document.getElementById("rng-vol-sell").value+",vol_buy:"+document.getElementById("rng-vol-buy").value;
+    url='/update-sliders/'+str_xyz;
+    Http.open("GET", url);
+    Http.send();
+}
+</script>
 {% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-md-6" style="width: 100%;">
-            <div class="well" style="max-width: 40%;">
+        <div class="col-md-6">
+            <div class="well">
                 <h3>SP:</h3>
                 <canvas id="chart-sp" width="450" height="300"></canvas>
             </div>
-        </div>
-        <div class="col-md-6"  style="width: 100%;">
-            <div class="well" style="max-width: 40%;">
+            <div class="well">
                 <h3>ESX:</h3>
                 <canvas id="chart-esx" width="450" height="300"></canvas>
+            </div>
+            <div class="well">
+                <div class="row">
+                    <div class="col-md-6" style="border-right: 6px solid black;">
+                        <table class="table">
+                            <thead>
+                                <th><b>Positions</b></th>
+                                <th></th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>ESX</td>
+                                    <td id="td-pos-esx"></td>
+                                </tr>
+                                <tr>
+                                    <td>SP</td>
+                                    <td id="td-pos-sp"></td>
+                                </tr>
+                                <tr>
+                                    <td>PnL</td>
+                                    <td id="td-pnl"></td>
+                                </tr>
+                                <tr>
+                                    <td>PnL Locked</td>
+                                    <td id="td-pnl-locked"></td>
+                                </tr>
+                                <tr>
+                                    <td>Traded Volume</td>
+                                    <td id="td-traded-vol"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr/>
+                        <table class="table">
+                            <thead>
+                                <th><b>Parameters</b></th>
+                                <th>ESX</th>
+                                <th>SP</th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Mean</td>
+                                    <td id="td-esx-mean"></td>
+                                    <td id="td-sp-mean"></td>
+                                </tr>
+                                <tr>
+                                    <td>Standard Deviation</td>
+                                    <td id="td-esx-std"></td>
+                                    <td id="td-sp-std"></td>
+                                </tr>
+                                <tr>
+                                    <td>Z-Value</td>
+                                    <td id="td-esx-z"></td>
+                                    <td id="td-sp-z"></td>
+                                </tr>
+                                <tr>
+                                    <td>Trade Volume</td>
+                                    <td id="td-esx-tv"></td>
+                                    <td id="td-sp-tv"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table">
+                            <tr>
+                                <td>Threshold Buy</td>
+                                <td>
+                                    <input type="range" class="custom-range" min="0" max="5" step="0.1" id="rng-tres-buy" onchange="updtsl()" value="0">
+                                </td>
+                                <td id="tres-buy-td">0</td>
+                            </tr>
+                            <tr>
+                                <td>Threshold Sell</td>
+                                <td>
+                                    <input type="range" class="custom-range" min="-5" max="0" step="0.1" id="rng-tres-sell" onchange="updtsl()" value="0">
+                                </td>
+                                <td id="tres-sell-td">0</td>
+                            </tr>
+                            <tr>
+                                <td>Voulume Buy</td>
+                                <td>
+                                    <input type="range" class="custom-range" min="0" max="250" step="1" id="rng-vol-buy" onchange="updtsl()" value="0">
+                                </td>
+                                <td id="vol-buy-td">0</td>
+                            </tr>
+                            <tr>
+                                <td>Volume Sell</td>
+                                <td>
+                                    <input type="range" class="custom-range" min="-250" max="0" step="1" id="rng-vol-sell" onchange="updtsl()" value="0">
+                                </td>
+                                <td id="vol-sell-td">0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="well" style="min-height: 1000px;">
             </div>
         </div>
         <hr/>
@@ -48,9 +159,7 @@ var {{c['name']}} = new Chart(document.getElementById("{{c['id']}}"),{
             xAxes: [{
                 type: 'time',
                 time: {
-                    unit: 'minute'
-                },
-                ticks:{
+                    unit: 'minute',
                     min:"{{c['labels'][0]}}",
                     max:"{{c['labels'][-1]}}"
                 }
@@ -58,20 +167,52 @@ var {{c['name']}} = new Chart(document.getElementById("{{c['id']}}"),{
         }
               }
             });
-var interval_{{c['name']}} = setInterval(function update_{{c['name']}}() {
+{% endfor %}
+var interval_abc = setInterval(function update_abc() {
     Http = new XMLHttpRequest();
-    url='/crt-update/{{c['id']}}';
+    url='/crt-update';
     Http.open("GET", url);
     Http.send();
     Http.onreadystatechange=(e)=>{
-            var res = Http.responseText.split('|');
-            {{c['name']}}.data.labels = res[0].split(';');
-            {{c['name']}}.data.datasets[0].data = res[1].split(';');
-            {{c['name']}}.data.datasets[1].data = res[2].split(';');
+            var res = Http.responseText.split('&&')[0].split('|');
+            var re2 = Http.responseText.split('&&')[1].split('|');
+            var re3 = Http.responseText.split('&&')[2].split(';');
+            var re4 = Http.responseText.split('&&')[3].split(';');
+            var re5 = Http.responseText.split('&&')[4].split(';');
+            
+            document.getElementById("td-pos-esx").innerHTML = re3[0];
+            document.getElementById("td-pos-sp").innerHTML = re3[1];
+            document.getElementById("td-pnl").innerHTML  = re3[2];
+            document.getElementById("td-pnl-locked").innerHTML = re3[3];
+            document.getElementById("td-traded-vol").innerHTML  =re3[4];
+        
+            document.getElementById("td-esx-mean").innerHTML  =re4[0];
+            document.getElementById("td-esx-std").innerHTML  =re4[1];
+            document.getElementById("td-esx-z").innerHTML  =re4[2];
+            document.getElementById("td-esx-tv").innerHTML  =re4[3];
+        
+            document.getElementById("td-sp-mean").innerHTML  =re5[0];
+            document.getElementById("td-sp-std").innerHTML  =re5[1];
+            document.getElementById("td-sp-z").innerHTML  =re5[2];
+            document.getElementById("td-sp-tv").innerHTML  =re5[3];
+        
+            var smth = res[0].split(';');
+            chart_sp.data.labels = smth;
+            chart_sp.options.scales.xAxes[0].time.min =smth[0];
+            chart_sp.options.scales.xAxes[0].time.max = smth[smth.length-1];
+            chart_sp.data.datasets[0].data = res[1].split(';');
+            chart_sp.data.datasets[1].data = res[2].split(';');
+            var smth2 = re2[0].split(';');
+            chart_esx.data.labels = smth2;
+            chart_esx.options.scales.xAxes[0].time.min =smth2[0];
+            chart_esx.options.scales.xAxes[0].time.max = smth2[smth2.length-1];
+            chart_esx.data.datasets[0].data = re2[1].split(';');
+            chart_esx.data.datasets[1].data = re2[2].split(';');
         }
-    {{c['name']}}.update();
+    chart_esx.update();
+    chart_sp.update();
     }, 1000)
-{% endfor %}
+
 
 </script>
 {% endblock %}

@@ -1,1 +1,1 @@
-{"threshold_sell" : 2, "threshold_buy" : -2, "vol_sell" : -5, "vol_buy" : 5}
+{"threshold_sell": -2.5, "threshold_buy": 3.1, "vol_sell": -111.0, "vol_buy": 150.0}
