@@ -37,9 +37,9 @@ def buyOrSell(d,prev_60_val, newval):
   # print(z)
   # calculate z-score
   # if z > 2 == negative value (sell)
-  parameters["mean"] = mean
-  parameters["stdev"] = std
-  parameters["z-value"] = z
+  parameters["mean"] = round(mean,0)
+  parameters["stdev"] = round(std,2)
+  parameters["z-value"] = round(z,2)
   
   if z > params["threshold_sell"]:
     d["price"] = newval
@@ -65,7 +65,6 @@ old_ts_esx = None
 old_ts_sp = None
 
 status = {"parameters" : {}, "position" : {}, "flowchart_lit" : []}
-
 while(True):
   json_dict = read_json("recordings/prices.json") #read the json file
 
