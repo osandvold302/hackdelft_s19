@@ -1,0 +1,1 @@
+{"parameters": {"SP": {"mean": 3022.9875, "stdev": 0.5091352963604074, "z-value": 0.515580046946891, "trade_volume": 0}, "ESX": {"mean": 3065.125, "stdev": 1.991387707102763, "z-value": -0.9415544714433868, "trade_volume": 0}}, "position": {"PnL": 102304, "PnL_locked": 1030, "SP_position": 200, "ESX_position": 300}, "flowchart_lit": []}

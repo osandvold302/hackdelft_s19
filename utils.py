@@ -14,3 +14,8 @@ def read_json(filename):
         except (IndexError, json.decoder.JSONDecodeError):
             pass
     return json_dict
+
+def write_json(object, filename):
+    dump = json.dumps(object)
+    with open(filename, "w") as f:
+        f.write(dump)
