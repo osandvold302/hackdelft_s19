@@ -1,2 +1,5 @@
 .ipynb_checkpoints
 __pycache__
+data_esx.txt
+data_sp.txt
+recordings/*.json
