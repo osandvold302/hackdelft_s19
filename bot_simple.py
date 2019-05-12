@@ -78,8 +78,8 @@ while(True):
       action= "SELL"
     
     if d["volume"] != 0:
+      status = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
       print(d, status)
-      mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
 
   if json_dict["SP"]["timestamp"] != old_ts_sp:
     d["feedcode"] = "SP"
