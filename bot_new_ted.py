@@ -26,15 +26,16 @@ d["volume"] = 0
 
 
 def buyOrSell(d, prev_60_val, newval, other_market):
+    mean = np.mean(prev_60_val)
+    # calculate mean based on queue
+    std = np.std(prev_60_val)
+    # calculated std
+    z = (newval - mean) / std
+    # print(z)
+    # calculate z-score
+    # if z > 2 == negative value (sell)
+    
     if other_market == []:
-        mean = np.mean(prev_60_val)
-        # calculate mean based on queue
-        std = np.std(prev_60_val)
-        # calculated std
-        z = (newval - mean) / std
-        # print(z)
-        # calculate z-score
-        # if z > 2 == negative value (sell)
         if z > 2:
             d["price"] = newval
             d["volume"] = -5
@@ -44,19 +45,18 @@ def buyOrSell(d, prev_60_val, newval, other_market):
             d["price"] = newval
             d["volume"] = 5
             return d
-
+        
         else:
             # return 0 price, 0 volume
             d["volume"] = 0
             return d
+        
     else:
         if len(prev_60_val) <= len(other_market):
             from scipy.stats import spearmanr
             corr, p = spearmanr(other_market[:60],prev_60_val[:60])
             if corr < -0.6:
-                d["price"] = newval + (-corr * newval)
-                d["volume"] = 5 + int(5 * -corr)
-                return d
+                return buyOrSell(d, prev_60_val, newval, [])
             corr2, p = spearmanr(prev_60_val[:60],other_market[:60])
             if corr2 < -0.6:
                 return buyOrSell(d, other_market, newval, [])
@@ -72,6 +72,7 @@ old_ts_sp = None
 
 while (True):
     json_dict = read_json("recordings/prices.json")  # read the json file
+    
     if json_dict["ESX"][
         "timestamp"] != old_ts_esx:  # if the timestamp is different than the old timestamp we have a new packet
         d["feedcode"] = "ESX"  # so we set the fee
