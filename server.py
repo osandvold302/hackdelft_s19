@@ -11,7 +11,7 @@ data_sp =  st.loadData('data_sp.txt')
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=st.saveData, trigger='interval', seconds=60,args=[data_esx,'data_esx.txt'])
-scheduler.add_job(func=st.saveData, trigger='interval', seconds=60,args=[data_esx,'data_sp.txt'])
+scheduler.add_job(func=st.saveData, trigger='interval', seconds=60,args=[data_sp,'data_sp.txt'])
 scheduler.start()
 
 @app.route('/')

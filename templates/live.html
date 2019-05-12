@@ -98,30 +98,30 @@ function updtsl() {
                             <tr>
                                 <td>Threshold Buy</td>
                                 <td>
-                                    <input type="range" class="custom-range" min="-5" max="0" step="0.1" id="rng-tres-buy" onchange="updtsl()" value="0">
+                                    <input type="range" class="custom-range" min="-5" max="0" step="0.1" id="rng-tres-buy" onchange="updtsl()" value="-1">
                                 </td>
-                                <td id="tres-buy-td">0</td>
+                                <td id="tres-buy-td">-1</td>
                             </tr>
                             <tr>
                                 <td>Threshold Sell</td>
                                 <td>
-                                    <input type="range" class="custom-range" min="0" max="5" step="0.1" id="rng-tres-sell" onchange="updtsl()" value="0">
+                                    <input type="range" class="custom-range" min="0" max="5" step="0.1" id="rng-tres-sell" onchange="updtsl()" value="1">
                                 </td>
-                                <td id="tres-sell-td">0</td>
+                                <td id="tres-sell-td">1</td>
                             </tr>
                             <tr>
                                 <td>Voulume Buy</td>
                                 <td>
-                                    <input type="range" class="custom-range" min="0" max="250" step="1" id="rng-vol-buy" onchange="updtsl()" value="0">
+                                    <input type="range" class="custom-range" min="0" max="250" step="1" id="rng-vol-buy" onchange="updtsl()" value="75">
                                 </td>
-                                <td id="vol-buy-td">0</td>
+                                <td id="vol-buy-td">75</td>
                             </tr>
                             <tr>
                                 <td>Volume Sell</td>
                                 <td>
-                                    <input type="range" class="custom-range" min="-250" max="0" step="1" id="rng-vol-sell" onchange="updtsl()" value="0">
+                                    <input type="range" class="custom-range" min="-250" max="0" step="1" id="rng-vol-sell" onchange="updtsl()" value="-75">
                                 </td>
-                                <td id="vol-sell-td">0</td>
+                                <td id="vol-sell-td">-75</td>
                             </tr>
                         </table>
                     </div>

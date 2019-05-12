@@ -1,8 +1,1 @@
-{"parameters": {"ESX" : {"mean" : 222, 
-                          "stdev" : 1.5,
-                          "z-value" : 2.2,
-                          "trade_volume" : 20},
-                "SP" : {"mean" : 222, 
-                    "stdev" : 1.5,
-                    "z-value" : 2.2,
-                    "trade_volume" : 20}}, "position": {"PNL": "-354510", "PNL_locked": "159908", "traded_volume": "73261", "ESX_position": "-14664", "SP_position": "-16929"}, "flowchart": "append.png"}
+{"parameters": {"ESX": {"mean": 3427.0, "stdev": 0.59, "z-value": 2.31, "trade_volume": -112}, "SP": {"mean": 2925.0, "stdev": 1.29, "z-value": -0.7, "trade_volume": 0}}, "position": {"PNL": "165099", "PNL_locked": "309413", "traded_volume": "66063", "ESX_position": "1348", "SP_position": "-4305"}, "flowchart": "nothing.png"}
