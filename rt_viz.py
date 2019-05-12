@@ -1,8 +1,11 @@
 from messages import Price, Trade
 import matplotlib.pyplot as plt
 import socket
+import requests
 
-fig, axes = plt.subplots(nrows=2, ncols=2, sharex=True)
+plt.subplots(nrows=2, ncols=2, sharex=True)
+sess = requests.Session()
+url = 'http://127.0.0.1:5000/upload-data'
 
 
 
@@ -19,13 +22,6 @@ sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
 
 i=0
 
-SP_price = []
-SP_volume = []
-SP_timestamp = []
-
-ESX_price = []
-ESX_volume = []
-ESX_timestamp = []    
 
 # blue is bid, ask is orange
 while True:
@@ -35,42 +31,12 @@ while True:
 
     if "TYPE=PRICE" in raw_request:
         price = Price.from_packet(raw_request)
-
-        if price.feedcode == "SP-FUTURE":
-            axes[0,0].cla()
-            axes[1,0].cla()
-
-            SP_price.append((price.bid[0], price.ask[0]))
-            SP_volume.append((price.bid[1], price.ask[1]))
-            SP_timestamp.append(price.timestamp.to_datetime64())
-            axes[0, 0].set_title("Price SP-FUTURE")
-            axes[1, 0].set_title("Volume SP-FUTURE")
-
-
-            axes[0, 0].plot(SP_timestamp, [i[0] for i in SP_price], color="C0")
-            axes[0, 0].plot(SP_timestamp,[i[1] for i in SP_price], color="C1")
-            axes[1, 0].plot(SP_timestamp,[i[0] for i in SP_volume], color="C0")
-            axes[1, 0].plot(SP_timestamp,[i[1] for i in SP_volume], color="C1")
-
-        if price.feedcode == "ESX-FUTURE":
-            axes[0,1].cla()
-            axes[1,1].cla()
-            
-            ESX_price.append((price.bid[0], price.ask[0]))
-            ESX_volume.append((price.bid[1], price.ask[1]))
-            ESX_timestamp.append(price.timestamp.to_datetime64())
-
-            axes[0, 1].set_title("Price ESX-FUTURE")
-            axes[1, 1].set_title("Volume ESX-FUTURE")
-
-            axes[0, 1].plot(ESX_timestamp, [i[0] for i in ESX_price], color="C0")
-            axes[0, 1].plot(ESX_timestamp,[i[1] for i in ESX_price], color="C1")
-            axes[1, 1].plot(ESX_timestamp, [i[0] for i in ESX_volume], color="C0")
-            axes[1, 1].plot(ESX_timestamp,[i[1] for i in ESX_volume], color="C1")
-            
-        plt.pause(0.0001)
-
+        print(price.timestamp, price.feedcode, price.bid, price.ask)
+        data = {'time':price.timestamp,'fcode':price.feedcode,'bidprice':price.bid[0],'bidvol':price.bid[1],'askprice':price.ask[0],'askvol':price.ask[1]}
+        sess.post(url,data=data)
     elif "TYPE=TRADE" in raw_request:
         trade = Trade.from_packet(raw_request)
+        #print(trade.timestamp, trade.feedcode, trade.side, trade.price, trade.volume)
         
     i+=1
+    

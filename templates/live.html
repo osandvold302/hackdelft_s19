@@ -9,11 +9,69 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <div class="col-md-12">
-            <div class="well" style="min-height: 400px;">
-                
+        <div class="col-md-6" style="width: 100%;">
+            <div class="well" style="max-width: 40%;">
+                <h3>SP:</h3>
+                <canvas id="chart-sp" width="450" height="300"></canvas>
             </div>
         </div>
+        <div class="col-md-6"  style="width: 100%;">
+            <div class="well" style="max-width: 40%;">
+                <h3>ESX:</h3>
+                <canvas id="chart-esx" width="450" height="300"></canvas>
+            </div>
+        </div>
+        <hr/>
     </div>
 </div>
+<script>
+{% for c in charts %}
+var {{c['name']}} = new Chart(document.getElementById("{{c['id']}}"),{
+     type: 'line',
+     data: {
+        labels: [{% for x in c['labels'] %}"{{x}}",{% endfor %}],
+        datasets: [{
+            data: [{% for x in c['bidprice'] %}{{x}},{% endfor %}],
+            label: "BID",
+            borderColor: "#3e95cd",
+            fill: false
+        },{
+            data: [{% for x in c['askprice'] %}{{x}},{% endfor %}],
+            label: "ASK",
+            borderColor: "#8e5ea2",
+            fill: false
+        }
+        ]
+         },
+         options: {
+                scales: {
+            xAxes: [{
+                type: 'time',
+                time: {
+                    unit: 'minute'
+                },
+                ticks:{
+                    min:"{{c['labels'][0]}}",
+                    max:"{{c['labels'][-1]}}"
+                }
+            }]
+        }
+              }
+            });
+var interval_{{c['name']}} = setInterval(function update_{{c['name']}}() {
+    Http = new XMLHttpRequest();
+    url='/crt-update/{{c['id']}}';
+    Http.open("GET", url);
+    Http.send();
+    Http.onreadystatechange=(e)=>{
+            var res = Http.responseText.split('|');
+            {{c['name']}}.data.labels = res[0].split(';');
+            {{c['name']}}.data.datasets[0].data = res[1].split(';');
+            {{c['name']}}.data.datasets[1].data = res[2].split(';');
+        }
+    {{c['name']}}.update();
+    }, 1000)
+{% endfor %}
+
+</script>
 {% endblock %}
