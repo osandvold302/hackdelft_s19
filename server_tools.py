@@ -43,7 +43,7 @@ def saveSliders(sl_data):
 def getTableData():
     while True:
         try:
-            with open("recordings/status_mockup.json", "r") as read_file:
+            with open("recordings/status_simple.json", "r") as read_file:
                 return json.load(read_file)
         except:
             pass
