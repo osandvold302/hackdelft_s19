@@ -1,0 +1,14 @@
+{"parameters" : {"ESX" : {"mean" : 222, 
+                          "stdev" : 1.5,
+                          "z-value" : 2.2,
+                          "trade_volume" : 20},
+                "SP" : {"mean" : 222, 
+                    "stdev" : 1.5,
+                    "z-value" : 2.2,
+                    "trade_volume" : 20}},
+"position" : {"PnL" : 10030, 
+              "PnL_locked" : 134,
+              "ESX_position" : 300,
+              "SP_position" : 400},      // for position and parameters use 
+"flowchart_lit" : ["id1", "id3", "id5"]} // the key as a label when you print the values in table
+
