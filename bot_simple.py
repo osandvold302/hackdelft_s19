@@ -37,9 +37,9 @@ def buyOrSell(d,prev_60_val, newval):
   # print(z)
   # calculate z-score
   # if z > 2 == negative value (sell)
-  parameters["mean"] = mean
-  parameters["stdev"] = std
-  parameters["z-value"] = z
+  parameters["mean"] = round(mean,0)
+  parameters["stdev"] = round(std,2)
+  parameters["z-value"] = round(z,2)
   
   if z > params["threshold_sell"]:
     d["price"] = newval
@@ -64,15 +64,13 @@ mngr = TradeManager("30_bot_simple")
 old_ts_esx = None
 old_ts_sp = None
 
-status = {"parameters" : {}, "position" : {}, "flowchart_lit" : []}
-
+status = {"parameters" : {}, "position" : {}, "flowchart" : "empty.png"}
 while(True):
   json_dict = read_json("recordings/prices.json") #read the json file
 
   if json_dict["ESX"]["timestamp"] != old_ts_esx: # if the timestamp is different than the old timestamp we have a new packet
     d["feedcode"] = "ESX" #so we set the fee
     ESX_list.append(json_dict["ESX"]["bid"]["price"])
-
     if len(ESX_list)>WINDOW:
       ESX_list.pop(0) # keep only the WINDOW last values
 
@@ -99,6 +97,7 @@ while(True):
   if json_dict["SP"]["timestamp"] != old_ts_sp:
     d["feedcode"] = "SP"
     SP_list.append(json_dict["SP"]["bid"]["price"])
+    status["flowchart"] = "append.png"
 
     if len(SP_list)>WINDOW:
       SP_list.pop(0) # keep only the WINDOW last values
@@ -106,16 +105,21 @@ while(True):
       # call buyOrSell      
       d, intermediaries = buyOrSell(d,SP_list,json_dict["SP"]["bid"]["price"])
       status["parameters"]["SP"] = intermediaries
-
+  
     old_ts_sp = json_dict["SP"]["timestamp"]
 
     if d["volume"] != 0:
       json_dict = read_json("recordings/prices.json")
+    status["flowchart"] = "nothing.png"
 
     if d["volume"] > 0:
+      status["flowchart"] = "buying.png"
+
       d["price"] = json_dict[d["feedcode"]]["ask"]["price"]
       action = "BUY"
     elif d["volume"] < 0 :
+      status["flowchart"] = "selling.png"
+
       d["price"] = json_dict[d["feedcode"]]["bid"]["price"]
       action= "SELL"
     
