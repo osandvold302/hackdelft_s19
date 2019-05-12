@@ -20,22 +20,22 @@ def monitor(username, filename, listening_time=3600): #in seconds
 
         time.sleep(10)
 
-def fetch(username):
-    recording = {}
-    mngr = TradeManager(username=username)
+def fetch(usernames):
+    mngr = TradeManager(username=usernames[0])
 
     while True:
-        timestamp = pd.Timestamp.utcnow()
-        status = mngr.get_status()
+        for username in usernames:
+            timestamp = pd.Timestamp.utcnow()
+            status = mngr.get_status(username=username)
 
-        recording[str(timestamp)] = status
+            print(username, status)
 
-        dump = json.dumps(recording)
-        with open("recordings/position_{}.json".format(username), "w") as f:
-            f.write(dump)
+            dump = json.dumps(status)
+            with open("recordings/position_{}.json".format(username), "w") as f:
+                f.write(dump)
 
         time.sleep(10)
 
 if __name__ == "__main__":
     # monitor("30_bot_simple", "recordings/30_bot_simple.json", listening_time=30*60)
-    fetch("30_bot_simple")
+    fetch(["30_bot_simple", "30_bot_exponent"])
