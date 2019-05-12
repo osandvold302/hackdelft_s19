@@ -130,7 +130,7 @@ function updtsl() {
         </div>
         <div class="col-md-6">
             <div class="well" style="min-height: 1000px;">
-                <img src="{{ url_for('static', filename='img/pic.svg') }}"
+                <img id="img-fc" src="{{ url_for('static', filename='img/simple_flowcharts/empty.png') }}"/>
             </div>
         </div>
         <hr/>
@@ -181,6 +181,7 @@ var interval_abc = setInterval(function update_abc() {
             var re4 = Http.responseText.split('&&')[3].split(';');
             var re5 = Http.responseText.split('&&')[4].split(';');
             
+            document.getElementById("img-fc").src = "static/img/simple_flowcharts/"+Http.responseText.split('&&')[5];
             document.getElementById("td-pos-esx").innerHTML = re3[0];
             document.getElementById("td-pos-sp").innerHTML = re3[1];
             document.getElementById("td-pnl").innerHTML  = re3[2];

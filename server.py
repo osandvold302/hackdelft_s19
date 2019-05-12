@@ -73,7 +73,7 @@ def chartUpdate():
     dx = st.getTableData()
     s_ret += str(dx['position']['ESX_position'])+';'+str(dx['position']['SP_position'])+';'+str(dx['position']['PNL'])+';'+str(dx['position']['PNL_locked'])+';'+str(dx['position']['traded_volume'])+'&&'
     s_ret += str(dx['parameters']['ESX']['mean'])+';'+str(dx['parameters']['ESX']['stdev'])+';'+str(dx['parameters']['ESX']['z-value'])+';'+str(dx['parameters']['ESX']['trade_volume'])+'&&'
-    s_ret += str(dx['parameters']['SP']['mean'])+';'+str(dx['parameters']['SP']['stdev'])+';'+str(dx['parameters']['SP']['z-value'])+';'+str(dx['parameters']['SP']['trade_volume'])
+    s_ret += str(dx['parameters']['SP']['mean'])+';'+str(dx['parameters']['SP']['stdev'])+';'+str(dx['parameters']['SP']['z-value'])+';'+str(dx['parameters']['SP']['trade_volume'])+'&&'+str(dx['flowchart'])
     #print(s_ret)
     return s_ret
 
