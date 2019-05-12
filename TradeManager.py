@@ -72,7 +72,7 @@ class TradeManager:
         # if not type(price)=="float" or not type(volume)=="int":
             # raise TypeError("Check your numerical values")
 
-        request = "TYPE=ORDER|USERNAME={}|FEEDCODE={}|ACTION={}|PRICE={}|VOLUME={}".format(self.username, feedcode,action,str(price), str(volume))
+        request = "TYPE=ORDER|USERNAME={}|FEEDCODE={}|ACTION={}|PRICE={}|VOLUME={}".format(self.username, feedcode,action,str(price), str(int(volume)))
 
         sock.sendto(bytes(request,"utf-8"), (UDP_IP, UDP_PORT)) #sending the trade request
 
