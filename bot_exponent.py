@@ -9,6 +9,7 @@ Original file is located at
 
 from messages import Price, Trade
 from TradeManager import TradeManager
+import math
 #import json
 import numpy as np
 import socket, json
@@ -32,23 +33,23 @@ d["volume"] = 0
 collect_ESX = False
 collect_SP = False
 
-def buyOrSell(d,prev_60_val, newval):
-  mean = np.mean(prev_60_val)
+def buyOrSell(d,prev_val, newval):
+  mean = np.mean(prev_val)
   # calculate mean based on queue
-  std = np.std(prev_60_val)
+  std = np.std(prev_val)
   # calculated std
   z = (newval - mean)/ std
   # print(z)
-  # calculate z-score
+  # calculate z-score, compute volume by power of std
   # if z > 2 == negative value (sell)
   if z > 2:
     d["price"] = newval
-    d["volume"] = -5
+    d["volume"] = round(math.pow(-5, z-1))
     return d
   # else if z < -2 == positive value (buy)
   elif z < -2:
     d["price"] = newval
-    d["volume"] = 5
+    d["volume"] = round(math.pow(5,abs(z)-1))
     return d
   
   else:
