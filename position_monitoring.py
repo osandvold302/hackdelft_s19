@@ -20,6 +20,22 @@ def monitor(username, filename, listening_time=3600): #in seconds
 
         time.sleep(10)
 
+def fetch(username):
+    recording = {}
+    mngr = TradeManager(username=username)
+
+    while True:
+        timestamp = pd.Timestamp.utcnow()
+        status = mngr.get_status()
+
+        recording[str(timestamp)] = status
+
+        dump = json.dumps(recording)
+        with open("recordings/position_{}.json".format(username), "w") as f:
+            f.write(dump)
+
+        time.sleep(10)
 
 if __name__ == "__main__":
-    monitor("cookie3", "recordings/cookie3.json", listening_time=180)
+    # monitor("30_bot_simple", "recordings/30_bot_simple.json", listening_time=30*60)
+    fetch("30_bot_simple")
