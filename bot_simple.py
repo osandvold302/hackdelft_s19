@@ -9,7 +9,7 @@ Original file is located at
 
 from messages import Price, Trade
 from TradeManager import TradeManager
-from utils import read_json
+from utils import read_json, write_json
 # import json
 import numpy as np
 import socket, json, time
@@ -25,6 +25,8 @@ d["price"] = 0
 d["volume"] = 0
 
 def buyOrSell(d,prev_60_val, newval):
+  parameters = {}
+
   params = read_json("recordings/sliders_simple.json")
 
   mean = np.mean(prev_60_val)
@@ -35,25 +37,34 @@ def buyOrSell(d,prev_60_val, newval):
   # print(z)
   # calculate z-score
   # if z > 2 == negative value (sell)
+  parameters["mean"] = mean
+  parameters["stdev"] = std
+  parameters["z-value"] = z
+  
   if z > params["threshold_sell"]:
     d["price"] = newval
     d["volume"] = params["vol_sell"]
-    return d
+    parameters["trade_volume"] = d["volume"]
+    return d, parameters
 
   elif z < params["threshold_buy"]:
     d["price"] = newval
     d["volume"] = params["vol_buy"]
-    return d
+    parameters["trade_volume"] = d["volume"]
+    return d, parameters
   
   else:
     # return 0 price, 0 volume
     d["volume"] = 0
-    return d
+    parameters["trade_volume"] = d["volume"]
+    return d, parameters
 
 mngr = TradeManager("30_bot_simple")
 
 old_ts_esx = None
 old_ts_sp = None
+
+status = {"parameters" : {}, "position" : {}, "flowchart_lit" : []}
 
 while(True):
   json_dict = read_json("recordings/prices.json") #read the json file
@@ -66,7 +77,9 @@ while(True):
       ESX_list.pop(0) # keep only the WINDOW last values
 
       # call buyOrSell      
-      d = buyOrSell(d,ESX_list,json_dict["ESX"]["bid"]["price"])
+      d, intermediaries = buyOrSell(d,ESX_list,json_dict["ESX"]["bid"]["price"])
+      status["parameters"]["ESX"] = intermediaries
+      
     old_ts_esx = json_dict["ESX"]["timestamp"]
 
     if d["volume"] != 0:
@@ -80,8 +93,8 @@ while(True):
       action= "SELL"
     
     if d["volume"] != 0:
-      status = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
-      print(d, status)
+      result = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
+      print(d, result)
 
   if json_dict["SP"]["timestamp"] != old_ts_sp:
     d["feedcode"] = "SP"
@@ -91,7 +104,9 @@ while(True):
       SP_list.pop(0) # keep only the WINDOW last values
 
       # call buyOrSell      
-      d = buyOrSell(d,SP_list,json_dict["SP"]["bid"]["price"])
+      d, intermediaries = buyOrSell(d,SP_list,json_dict["SP"]["bid"]["price"])
+      status["parameters"]["SP"] = intermediaries
+
     old_ts_sp = json_dict["SP"]["timestamp"]
 
     if d["volume"] != 0:
@@ -105,7 +120,10 @@ while(True):
       action= "SELL"
     
     if d["volume"] != 0:
-      # print(d)
-      status = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
-      print(d, status)
+      result = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
+      print(d, result)
+  # eeee
+  status["position"] = read_json("recordings/position_30_bot_simple.json")
+  # print(position)
+  write_json(status, "recordings/status_simple.json")
 time.sleep(0.05)
