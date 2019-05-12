@@ -9,16 +9,12 @@ Original file is located at
 
 from messages import Price, Trade
 from TradeManager import TradeManager
-#import json
+from utils import read_json
+# import json
 import numpy as np
-import socket, json
-#packet = "TYPE=TRADE|FEEDCODE=SP-FUTURE|SIDE=ASK|PRICE=533.3|VOLUME=122"
+import socket, json, time
 
-#trade = Trade.from_packet(packet)
-#print(trade.side)
-
-# 2 queues of length 60
-WINDOW = 60
+WINDOW = 20
 
 ESX_list = []
 SP_list = []
@@ -27,10 +23,6 @@ d = dict()
 d["feedcode"] = ""
 d["price"] = 0
 d["volume"] = 0
-
-# hacky way to get around collection
-collect_ESX = False
-collect_SP = False
 
 def buyOrSell(d,prev_60_val, newval):
   mean = np.mean(prev_60_val)
@@ -56,45 +48,28 @@ def buyOrSell(d,prev_60_val, newval):
     d["volume"] = 0
     return d
 
-UDP_IP = "188.166.115.7"
-UDP_PORT = 7001
-MESSAGE = b"TYPE=SUBSCRIPTION_REQUEST"
-
-sock = socket.socket(socket.AF_INET, # Internet
-                  socket.SOCK_DGRAM) # UDP
-
-sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
-
 mngr = TradeManager("30_bot_simple")
 
-while(True):
-  packet = sock.recvfrom(65535)
-  raw_request = str(packet[0])
+old_ts_esx = None
+old_ts_sp = None
 
-  if "TYPE=TRADE" in raw_request:
-    trade = Trade.from_packet(raw_request)
-    # If price is ESX  
-    if trade.feedcode == "ESX-FUTURE":
-      d["feedcode"] = "ESX"
-      # Fill until we reach the first 60
-      ESX_list.append(trade.price)
-      if len(ESX_list)>WINDOW:
-        ESX_list.pop(0)
-        # call buyOrSell      
-        d = buyOrSell(d,ESX_list,trade.price)
-    elif trade.feedcode == "SP-FUTURE":
-      d["feedcode"] = "SP"
-      # Fill until we reach the first 60
-      SP_list.append(trade.price)
-      if len(SP_list)>WINDOW:
-        SP_list.pop(0)
-        # call buyOrSell      
-        d = buyOrSell(d,SP_list,trade.price)
+while(True):
+  json_dict = read_json("recordings/prices.json") #read the json file
+
+  if json_dict["ESX"]["timestamp"] != old_ts_esx: # if the timestamp is different than the old timestamp we have a new packet
+    d["feedcode"] = "ESX" #so we set the fee
+    ESX_list.append(json_dict["ESX"]["bid"]["price"])
+
+    if len(ESX_list)>WINDOW:
+      ESX_list.pop(0) # keep only the WINDOW last values
+
+      # call buyOrSell      
+      d = buyOrSell(d,ESX_list,json_dict["ESX"]["bid"]["price"])
+    old_ts_esx = json_dict["ESX"]["timestamp"]
+
     if d["volume"] != 0:
-      with open("current.json","r") as file:
-        json_raw = file.readlines()[0]
-        json_dict = json.loads(json_raw)
-    
+      json_dict = read_json("recordings/prices.json")
+
     if d["volume"] > 0:
       d["price"] = json_dict[d["feedcode"]]["ask"]["price"]
       action = "BUY"
@@ -103,5 +78,32 @@ while(True):
       action= "SELL"
     
     if d["volume"] != 0:
-      print(d)
+      print(d, status)
       mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
+
+  if json_dict["SP"]["timestamp"] != old_ts_sp:
+    d["feedcode"] = "SP"
+    SP_list.append(json_dict["SP"]["bid"]["price"])
+
+    if len(SP_list)>WINDOW:
+      SP_list.pop(0) # keep only the WINDOW last values
+
+      # call buyOrSell      
+      d = buyOrSell(d,SP_list,json_dict["SP"]["bid"]["price"])
+    old_ts_sp = json_dict["SP"]["timestamp"]
+
+    if d["volume"] != 0:
+      json_dict = read_json("recordings/prices.json")
+
+    if d["volume"] > 0:
+      d["price"] = json_dict[d["feedcode"]]["ask"]["price"]
+      action = "BUY"
+    elif d["volume"] < 0 :
+      d["price"] = json_dict[d["feedcode"]]["bid"]["price"]
+      action= "SELL"
+    
+    if d["volume"] != 0:
+      # print(d)
+      status = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
+      print(d, status)
+time.sleep(0.05)
