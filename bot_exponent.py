@@ -11,15 +11,9 @@ from messages import Price, Trade
 from TradeManager import TradeManager
 from utils import read_json
 import math
-#import json
 import numpy as np
 import socket, json
-#packet = "TYPE=TRADE|FEEDCODE=SP-FUTURE|SIDE=ASK|PRICE=533.3|VOLUME=122"
 
-#trade = Trade.from_packet(packet)
-#print(trade.side)
-
-# 2 queues of length 60
 WINDOW = 60
 
 ESX_list = []
@@ -31,16 +25,17 @@ d["price"] = 0
 d["volume"] = 0
 
 def buyOrSell(d,prev_val, newval):
+  params = read_json("recordings/sliders_exponent.json")
   mean = np.mean(prev_val)
   # calculate mean based on queue
   std = np.std(prev_val)
   # calculated std
   z = (newval - mean)/ std
-  # print(z)
-  if np.abs(z) > 2:
+  print(z)
+  # print(-1*np.sign(z))
+  if np.abs(z) > params["threshold"]:
     d["price"] = newval
-      # d["volume"] = round(math.pow(-5, z-1))
-    d["volume"] = int(round(-1*np.sign(z)*np.power(5, np.abs(z)-1)))
+    d["volume"] = int(round(-1*np.sign(z)*np.power(params["base"], params["c"]*(np.abs(z)-params["b"]))))
 
     return d
   d["volume"] = 0
