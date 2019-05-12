@@ -25,6 +25,8 @@ d["price"] = 0
 d["volume"] = 0
 
 def buyOrSell(d,prev_60_val, newval):
+  params = read_json("recordings/sliders_simple.json")
+
   mean = np.mean(prev_60_val)
   # calculate mean based on queue
   std = np.std(prev_60_val)
@@ -33,14 +35,14 @@ def buyOrSell(d,prev_60_val, newval):
   # print(z)
   # calculate z-score
   # if z > 2 == negative value (sell)
-  if z > 2:
+  if z > params["threshold_sell"]:
     d["price"] = newval
-    d["volume"] = -5
+    d["volume"] = params["vol_sell"]
     return d
-  # else if z < -2 == positive value (buy)
-  elif z < -2:
+
+  elif z < params["threshold_buy"]:
     d["price"] = newval
-    d["volume"] = 5
+    d["volume"] = params["vol_buy"]
     return d
   
   else:
