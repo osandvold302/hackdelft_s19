@@ -11,6 +11,6 @@ def read_json(filename):
                 # print(raw_json[0])
             json_dict = json.loads(raw_json[0])
             success=True
-        except IndexError:
+        except (IndexError, json.decoder.JSONDecodeError):
             pass
     return json_dict
