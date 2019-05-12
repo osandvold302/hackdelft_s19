@@ -38,4 +38,4 @@ def fetch(usernames):
 
 if __name__ == "__main__":
     # monitor("30_bot_simple", "recordings/30_bot_simple.json", listening_time=30*60)
-    fetch(["30_bot_simple", "30_bot_exponent"])
+    fetch(["30_bot_simple"])
