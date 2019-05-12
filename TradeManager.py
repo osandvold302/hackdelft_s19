@@ -1,6 +1,6 @@
 import requests
 import numpy as np
-import socket
+import socket, time
 import csv
 
 POSITION = "http://188.166.115.7/data/pnls.csv"
@@ -35,14 +35,15 @@ class TradeManager:
         tries = 0
         succesful = False
 
-        while tries<5 and not succesful:
+        while not succesful:
             try:
                 with requests.Session() as s:
                     download = s.get(POSITION)
                 succesful = True
             except:
-                tries+=1
-                print(tries)
+                time.sleep(10)
+                pass
+                # print(tries)
             
         decoded_content = download.content.decode('utf-8')
 
