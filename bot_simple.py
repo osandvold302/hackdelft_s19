@@ -114,17 +114,17 @@ while(True):
     # print(d["volume"])
 
     if d["volume"] > 0:
-      status["flowchart"] = "buying.png"
+      status["flowchart"] = "buy.png"
       d["price"] = json_dict[d["feedcode"]]["ask"]["price"]
       action = "BUY"
 
     elif d["volume"] < 0 :
-      status["flowchart"] = "selling.png"
+      status["flowchart"] = "sell.png"
       d["price"] = json_dict[d["feedcode"]]["bid"]["price"]
       action = "SELL"
       # print(action)
     
-    if int(d["volume"]) != 0:
+    if d["volume"] != 0:
       result = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
       # print(d, result)
   # eeee
