@@ -78,7 +78,7 @@ class TradeManager:
         packet = sock.recvfrom(65535) #recieiving feedback
         raw_request = str(packet[0])
 
-        print(raw_request)
+        # print(raw_request)
         fields = str(raw_request).split("|")
 
         # error catching in the trade
@@ -95,7 +95,7 @@ class TradeManager:
         return price,volume
 
 if __name__ == "__main__":
-    mngr = TradeManager("Group30_test")
+    mngr = TradeManager("30_bot_simple")
     print(mngr.get_status())
     # while True:
     # status = "NOTRADE"
