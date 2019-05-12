@@ -8,18 +8,20 @@ Original file is located at
 """
 
 from messages import Price, Trade
+from TradeManager import TradeManager
 #import json
-import queue
-from statistics import stdev
-
+import numpy as np
+import socket, json
 #packet = "TYPE=TRADE|FEEDCODE=SP-FUTURE|SIDE=ASK|PRICE=533.3|VOLUME=122"
 
 #trade = Trade.from_packet(packet)
 #print(trade.side)
 
 # 2 queues of length 60
-queue_ESX = queue.Queue(60)
-queue_SP = queue.Queue(60)
+WINDOW = 60
+
+ESX_list = []
+SP_list = []
 
 d = dict()
 d["feedcode"] = ""
@@ -30,39 +32,13 @@ d["volume"] = 0
 collect_ESX = False
 collect_SP = False
 
-while(True):
-  # If price is ESX  
-  if trade.feedcode == "ESX-FUTURE":
-    # Fill until we reach the first 60
-    if not queue_ESX.full() and not collect_ESX:
-      queue_ESX.put(trade)
-    else:
-      collect_ESX = True
-      queue_ESX.get(0)
-      queue_ESX.put(trade)
-      # call buyOrSell      
-      d["feedcode"] = "ESX-FUTURE"
-      d = buyOrSell(d,queue_ESX,trade.price)
-
-
-  # If price is SP 
-  else:
-    if not queue_SP.full() and not collect_SP:
-      queue_SP.put(trade)
-    else: 
-      collect_SP = True
-      queue_SP.get(0)
-      queue_SP.put(trade)
-      d["feedcode"] = "SP-FUTURE"
-      d = buyOrSell(d,queue,trade.price)
-
-
 def buyOrSell(d,prev_60_val, newval):
-  mean = sum(prev_60_val) / 60
+  mean = np.mean(prev_60_val)
   # calculate mean based on queue
-  std = stdev(prev_60_val)
+  std = np.std(prev_60_val)
   # calculated std
   z = (newval - mean)/ std
+  # print(z)
   # calculate z-score
   # if z > 2 == negative value (sell)
   if z > 2:
@@ -72,7 +48,7 @@ def buyOrSell(d,prev_60_val, newval):
   # else if z < -2 == positive value (buy)
   elif z < -2:
     d["price"] = newval
-    d["volume"] = 7
+    d["volume"] = 5
     return d
   
   else:
@@ -80,4 +56,52 @@ def buyOrSell(d,prev_60_val, newval):
     d["volume"] = 0
     return d
 
-""
+UDP_IP = "188.166.115.7"
+UDP_PORT = 7001
+MESSAGE = b"TYPE=SUBSCRIPTION_REQUEST"
+
+sock = socket.socket(socket.AF_INET, # Internet
+                  socket.SOCK_DGRAM) # UDP
+
+sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+
+mngr = TradeManager("30_bot_simple")
+
+while(True):
+  packet = sock.recvfrom(65535)
+  raw_request = str(packet[0])
+
+  if "TYPE=TRADE" in raw_request:
+    trade = Trade.from_packet(raw_request)
+    # If price is ESX  
+    if trade.feedcode == "ESX-FUTURE":
+      d["feedcode"] = "ESX"
+      # Fill until we reach the first 60
+      ESX_list.append(trade.price)
+      if len(ESX_list)>WINDOW:
+        ESX_list.pop(0)
+        # call buyOrSell      
+        d = buyOrSell(d,ESX_list,trade.price)
+    elif trade.feedcode == "SP-FUTURE":
+      d["feedcode"] = "SP"
+      # Fill until we reach the first 60
+      SP_list.append(trade.price)
+      if len(SP_list)>WINDOW:
+        SP_list.pop(0)
+        # call buyOrSell      
+        d = buyOrSell(d,SP_list,trade.price)
+    if d["volume"] != 0:
+      with open("current.json","r") as file:
+        json_raw = file.readlines()[0]
+        json_dict = json.loads(json_raw)
+    
+    if d["volume"] > 0:
+      d["price"] = json_dict[d["feedcode"]]["ask"]["price"]
+      action = "BUY"
+    elif d["volume"] < 0 :
+      d["price"] = json_dict[d["feedcode"]]["bid"]["price"]
+      action= "SELL"
+    
+    if d["volume"] != 0:
+      print(d)
+      mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
