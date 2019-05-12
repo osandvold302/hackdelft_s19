@@ -105,23 +105,23 @@ while(True):
       # call buyOrSell      
       d, intermediaries = buyOrSell(d,SP_list,json_dict["SP"]["bid"]["price"])
       status["parameters"]["SP"] = intermediaries
-  
+      status["flowchart"] = "nothing.png"
+
     old_ts_sp = json_dict["SP"]["timestamp"]
 
     if d["volume"] != 0:
       json_dict = read_json("recordings/prices.json")
-    status["flowchart"] = "nothing.png"
 
     if d["volume"] > 0:
       status["flowchart"] = "buying.png"
-
       d["price"] = json_dict[d["feedcode"]]["ask"]["price"]
       action = "BUY"
+
     elif d["volume"] < 0 :
       status["flowchart"] = "selling.png"
 
       d["price"] = json_dict[d["feedcode"]]["bid"]["price"]
-      action= "SELL"
+      action = "SELL"
     
     if d["volume"] != 0:
       result = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
