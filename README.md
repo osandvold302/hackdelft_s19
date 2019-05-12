@@ -10,4 +10,4 @@ Olivia, Teddy, Nathan, Tobias
 3. Implement a basic trade algorithm  
 4. Deploy a website to display real time data  
 5. Understand trading strategies  
-
+6. Have fun! 
