@@ -3,7 +3,7 @@ import socket
 import os
 import json
 
-def fetch_data(FILENAME="current.json", printing=False):
+def fetch_data(printing=False):
     UDP_IP = "188.166.115.7"
     UDP_PORT = 7001
     MESSAGE = b"TYPE=SUBSCRIPTION_REQUEST"
@@ -16,16 +16,15 @@ def fetch_data(FILENAME="current.json", printing=False):
 
 
     ESX = { "bid" : {'price' : 0, 'volume' : 0},
-            "ask" : {'price' : 0, 'volume' : 0}}
+            "ask" : {'price' : 0, 'volume' : 0},
+            "timestamp" : 0}
 
     SP = { "bid" : {'price' : 0, 'volume' : 0},
-            "ask" : {'price' : 0, 'volume' : 0}}
+            "ask" : {'price' : 0, 'volume' : 0},
+            "timestamp" : 0}
 
-    timestamp = 0
-
-    bigDict = { "ESX" : ESX,
-                "SP" : SP, 
-                "timestamp" : timestamp}
+    pricesDict = { "ESX" : ESX,
+                "SP" : SP}
 
     while True:
         packet = sock.recvfrom(65535)
@@ -42,6 +41,7 @@ def fetch_data(FILENAME="current.json", printing=False):
                 SP["ask"]["price"] = price.ask[0]
                 SP["ask"]["volume"] = price.ask[1]
 
+                SP["timestamp"] = str(price.timestamp)
             if price.feedcode == "ESX-FUTURE":
                 ESX["bid"]["price"] = price.bid[0]
                 ESX["bid"]["volume"] = price.bid[1]
@@ -49,7 +49,8 @@ def fetch_data(FILENAME="current.json", printing=False):
                 ESX["ask"]["price"] = price.ask[0]
                 ESX["ask"]["volume"] = price.ask[1]
 
-            bigDict["timestamp"] = str(price.timestamp)
+                ESX["timestamp"] = str(price.timestamp)
+
             if printing:
                 os.system('cls' if os.name == 'nt' else 'clear')
                 print("""\n\n\n\n
@@ -57,14 +58,12 @@ def fetch_data(FILENAME="current.json", printing=False):
                         PRICE\t\tVOLUME\t\t\t|           PRICE\t\tVOLUME
                     BID {}\t\t{}\t\t\t|       BID {}\t\t{}
                     ASK {}\t\t{}\t\t\t|       ASK {}\t\t{}
-                \n\n
-                    TIMESTAMP {}""".format(SP["bid"]["price"], SP["bid"]["volume"], ESX["bid"]["price"], ESX["bid"]["volume"],SP["ask"]["price"], SP["ask"]["volume"], ESX["ask"]["price"], ESX["ask"]["volume"], bigDict["timestamp"]))
+                    TIMESTAMP {}\t|       TIMESTAMP {}""".format(SP["bid"]["price"], SP["bid"]["volume"], ESX["bid"]["price"], ESX["bid"]["volume"],SP["ask"]["price"], SP["ask"]["volume"], ESX["ask"]["price"], ESX["ask"]["volume"], SP["timestamp"], ESX["timestamp"]))
             
-            dump = json.dumps(bigDict)
+            dump = json.dumps(pricesDict)
 
-            with open(FILENAME, "w") as f:
+            with open("recordings/prices.json", "w") as f:
                 f.write(dump)
 
-
 if __name__ == "__main__":
-    fetch_data(FILENAME="current.json", printing=True)
+    fetch_data(printing=True)
