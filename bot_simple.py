@@ -43,13 +43,13 @@ def buyOrSell(d,prev_60_val, newval):
   
   if z > params["threshold_sell"]:
     d["price"] = newval
-    d["volume"] = params["vol_sell"]
+    d["volume"] = int(params["vol_sell"])
     parameters["trade_volume"] = d["volume"]
     return d, parameters
 
   elif z < params["threshold_buy"]:
     d["price"] = newval
-    d["volume"] = params["vol_buy"]
+    d["volume"] = int(params["vol_buy"])
     parameters["trade_volume"] = d["volume"]
     return d, parameters
   
@@ -111,6 +111,7 @@ while(True):
 
     if d["volume"] != 0:
       json_dict = read_json("recordings/prices.json")
+    # print(d["volume"])
 
     if d["volume"] > 0:
       status["flowchart"] = "buying.png"
@@ -119,13 +120,13 @@ while(True):
 
     elif d["volume"] < 0 :
       status["flowchart"] = "selling.png"
-
       d["price"] = json_dict[d["feedcode"]]["bid"]["price"]
       action = "SELL"
+      # print(action)
     
-    if d["volume"] != 0:
+    if int(d["volume"]) != 0:
       result = mngr.make_trade(d["feedcode"]+"-FUTURE", action, d["price"], np.abs(d["volume"]))
-      print(d, result)
+      # print(d, result)
   # eeee
   status["position"] = read_json("recordings/position_30_bot_simple.json")
   # print(position)
