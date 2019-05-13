@@ -4,6 +4,9 @@
 Members:  
 Olivia, Teddy, Nathan, Tobias  
 
+![alt text](static/TeamPict.jpg)
+
+
 ## Goals:  
 1. Read the data from the server about the markets  
 2. Save market data  
