@@ -22,4 +22,7 @@ invest their hard-earned money.
 3. Implement a basic trade algorithm  
 4. Deploy a website to display real time data  
 5. Understand trading strategies  
-6. Have fun! 
+6. Have fun!  
+
+## Our product:  
+![alt text](static/img/screenshot.png)
